@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사전 설문조사</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f4f9; color: #333; line-height: 1.6; }
+        .survey-container { max-width: 760px; margin: 40px auto; padding: 20px 40px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        h1, h2, h3 { color: #2c3e50; }
+        .progress-bar { width: 100%; background-color: #eee; border-radius: 10px; margin: 20px 0; }
+        .progress { width: 0%; height: 10px; background-color: #3498db; border-radius: 10px; transition: width 0.4s ease; }
+        .question-group { margin-bottom: 25px; border-left: 3px solid #3498db; padding-left: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .input-item, select, textarea { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        textarea { resize: vertical; min-height: 100px; }
+        .radio-group label, .checkbox-group label { font-weight: normal; display: flex; align-items: center; margin-bottom: 5px; }
+        .radio-group input, .checkbox-group input { margin-right: 10px; }
+        .btn-container { text-align: right; margin-top: 30px; }
+        button { padding: 12px 25px; border: none; background-color: #3498db; color: white; border-radius: 5px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
+        button:hover { background-color: #2980b9; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        .required-mark { color: #e74c3c; margin-left: 4px; }
+        .hidden { display: none; }
+        .likert-scale { display: flex; justify-content: space-around; list-style-type: none; padding: 0; margin: 10px 0; }
+        .likert-scale li { text-align: center; }
+        .likert-scale input[type="radio"] { display: block; margin: 0 auto 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="survey-container">
+        <h1>사전 설문조사</h1>
+        <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+        </div>
+
+        <form id="survey-form">
+            <!-- 페이지 1: 연구 동의 -->
+            <div id="page-1" class="page active">
+                <h2>① 연구 참여 동의서</h2>
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background-color: #fafafa; max-height: 300px; overflow-y: auto;">
+                    <p>본 설문은 ... 연구의 일환으로 진행됩니다. 수집된 모든 데이터는 익명으로 처리되며, 연구 목적 외에는 절대 사용되지 않습니다. 통계 분석 후 연구 자료는 안전하게 폐기될 것입니다.</p>
+                    <p>참여는 자발적이며, 원하지 않을 경우 언제든지 설문을 중단할 수 있습니다. 설문 소요 시간은 약 10-15분입니다.</p>
+                    <p>아래 동의 버튼을 누르는 것으로 연구 참여에 동의하는 것으로 간주합니다.</p>
+                </div>
+                <div class="checkbox-group" style="margin-top: 20px;">
+                    <label>
+                        <input type="checkbox" id="consent-check" name="consent"> 위 내용을 모두 확인했으며, 연구 참여에 동의합니다.
+                    </label>
+                </div>
+            </div>
+
+            <!-- 페이지 2: 인구통계 -->
+            <div id="page-2" class="page">
+                <h2>② 인구통계 정보</h2>
+                <div class="question-group">
+                    <label for="age">나이 (만 나이)<span class="required-mark">*</span></label>
+                    <input type="number" id="age" name="age" class="input-item" required>
+                </div>
+                <div class="question-group">
+                    <label>성별<span class="required-mark">*</span></label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="gender" value="남성" required> 남성</label>
+                        <label><input type="radio" name="gender" value="여성"> 여성</label>
+                        <label><input type="radio" name="gender" value="응답거부"> 응답거부</label>
+                    </div>
+                </div>
+                <div class="question-group">
+                    <label for="education">최종 학력<span class="required-mark">*</span></label>
+                    <select id="education" name="education" class="input-item" required>
+                        <option value="">선택하세요</option>
+                        <option value="고등학교 졸업 이하">고등학교 졸업 이하</option>
+                        <option value="대학(전문대 포함) 재학">대학(전문대 포함) 재학</option>
+                        <option value="대학(전문대 포함) 졸업">대학(전문대 포함) 졸업</option>
+                        <option value="대학원 재학 이상">대학원 재학 이상</option>
+                    </select>
+                </div>
+                <div class="question-group">
+                    <label for="status">현재 상태<span class="required-mark">*</span></label>
+                    <select id="status" name="status" class="input-item" required>
+                        <option value="">선택하세요</option>
+                        <option value="대학생">대학생</option>
+                        <option value="취업준비생">취업준비생</option>
+                        <option value="직장인">직장인</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+                <div id="work-experience-group" class="question-group hidden">
+                    <label for="work-experience">직장 경력<span class="required-mark">*</span></label>
+                    <select id="work-experience" name="workExperience" class="input-item">
+                        <option value="">선택하세요</option>
+                        <option value="1년 미만">1년 미만</option>
+                        <option value="1년 이상 ~ 3년 미만">1년 이상 ~ 3년 미만</option>
+                        <option value="3년 이상 ~ 7년 미만">3년 이상 ~ 7년 미만</option>
+                        <option value="7년 이상">7년 이상</option>
+                    </select>
+                </div>
+                <div class="question-group">
+                    <label>내 삶의 경제적 여유는 어느 수준이라 생각하나요?</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="economic-status" value="1"> ① 매우 부족</label>
+                        <label><input type="radio" name="economic-status" value="2"> ② 부족</label>
+                        <label><input type="radio" name="economic-status" value="3"> ③ 보통</label>
+                        <label><input type="radio" name="economic-status" value="4"> ④ 여유</label>
+                        <label><input type="radio" name="economic-status" value="5"> ⑤ 매우 여유</label>
+                        <label><input type="radio" name="economic-status" value="응답거부"> 응답 거부</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 페이지 3: 기본 성향 -->
+            <div id="page-3" class="page">
+                <h2>③ 기본 성향</h2>
+                <div class="question-group">
+                    <label for="personality">평소 나의 성격을 가장 잘 설명하는 단어는?<span class="required-mark">*</span></label>
+                    <select id="personality" name="personality" class="input-item" required>
+                        <option value="">선택하세요</option>
+                        <option value="낙관적">낙관적(긍정적·활달)</option>
+                        <option value="현실적">현실적(객관·실용)</option>
+                        <option value="신중">신중(조심·계획)</option>
+                        <option value="냉소적">냉소적(회의·비판)</option>
+                    </select>
+                </div>
+                <div class="question-group">
+                    <label for="self-esteem-source">평소 나는 자기존중감을 주로 어디서 얻는가?<span class="required-mark">*</span></label>
+                    <select id="self-esteem-source" name="selfEsteemSource" class="input-item" required>
+                        <option value="">선택하세요</option>
+                        <option value="타인의 인정">타인의 인정</option>
+                        <option value="개인적 성장/역량">개인적 성장/역량</option>
+                        <option value="친밀한 관계/소속감">친밀한 관계/소속감</option>
+                        <option value="외적 성과/지위/외모">외적 성과/지위/외모</option>
+                        <option value="가치 실현/기여감">가치 실현/기여감</option>
+                    </select>
+                </div>
+                <div class="question-group">
+                    <label>평소 감정 표현 스타일 (최대 2개 선택 가능)<span class="required-mark">*</span></label>
+                    <div class="checkbox-group" id="emotion-style-group">
+                        <label><input type="checkbox" name="emotion-style" value="즉시/솔직 표현형"> 즉시·솔직 표현형</label>
+                        <label><input type="checkbox" name="emotion-style" value="필터/조절 표현형"> 필터·조절 표현형</label>
+                        <label><input type="checkbox" name="emotion-style" value="간접/우회 표현형"> 간접·우회 표현형</label>
+                        <label><input type="checkbox" name="emotion-style" value="억제/내면화형"> 억제·내면화형</label>
+                        <label><input type="checkbox" name="emotion-style" value="상황에 따라 유연히"> 상황에 따라 유연히</label>
+                    </div>
+                </div>
+                 <div class="question-group">
+                    <label for="self-definition">나에 대해 자유롭게 한 문장으로 정의해보세요!</label>
+                    <textarea id="self-definition" name="selfDefinition" class="input-item" placeholder="(선택 응답) 자유롭게 작성해주세요."></textarea>
+                </div>
+            </div>
+
+            <!-- 페이지 4: 핵심 38문항 -->
+            <div id="page-4" class="page">
+                <h2>④ 핵심 문항</h2>
+                <p>다음 문항들은 1점에서 4점까지 선택해주세요.<br><b>(1) 전혀 아니다 (2) 아니다 (3) 그렇다 (4) 매우 그렇다</b></p>
+                
+                <!-- 문항 템플릿 -->
+                <script type="text/template" id="likert-question-template">
+                    <div class="question-group" data-qid="{qid}" data-reverse="{is-reverse}">
+                        <p><b>{q-text}</b><span class="required-mark">*</span></p>
+                        <ul class="likert-scale">
+                            <li><label><input type="radio" name="{qid}" value="1" required>전혀 아니다</label></li>
+                            <li><label><input type="radio" name="{qid}" value="2">아니다</label></li>
+                            <li><label><input type="radio" name="{qid}" value="3">그렇다</label></li>
+                            <li><label><input type="radio" name="{qid}" value="4">매우 그렇다</label></li>
+                        </ul>
+                    </div>
+                </script>
+
+                <div id="likert-questions-container">
+                    <!-- JavaScript로 문항이 채워질 영역 -->
+                </div>
+            </div>
+
+            <!-- 페이지 5: 감사 메시지 -->
+            <div id="page-5" class="page">
+                <h2>설문 완료</h2>
+                <p>설문에 참여해주셔서 진심으로 감사합니다. 귀하의 소중한 응답은 연구에 큰 도움이 될 것입니다.</p>
+            </div>
+
+            <!-- 네비게이션 버튼 -->
+            <div class="btn-container">
+                <button type="button" id="prev-btn" class="hidden">이전</button>
+                <button type="button" id="next-btn">동의하고 시작하기</button>
+                <button type="submit" id="submit-btn" class="hidden">제출</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
