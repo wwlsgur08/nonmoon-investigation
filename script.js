@@ -1,9 +1,9 @@
 // Firebase SDK 가져오기 (데이터베이스 기능 포함)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 // ----------------------------------------------------------------
-// Firebase 설정: 이 부분은 본인의 정보로 채워주세요!
+// Firebase 설정
 // ----------------------------------------------------------------
 const firebaseConfig = {
     apiKey: "AIzaSyA8bmJF4XSkZiK8uK-ESwxs-1Rpc6GML4U",
@@ -79,27 +79,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const progress = document.getElementById('progress');
 
     let currentPageIndex = 0;
-    const TOTAL_PAGES = pages.length -1; // 감사 페이지는 제외
+    const TOTAL_PAGES = pages.length; // 감사 페이지 포함
 
     // 4점 척도 문항 동적 생성
     function renderLikertQuestions() {
         const container = document.getElementById('likert-questions-container');
         const template = document.getElementById('likert-question-template').innerHTML;
-        let currentScale = '';
+        let questionCounter = 0; // 문항 번호를 위한 카운터
 
-        likertQuestions.forEach((item, index) => {
-            if (item.scale !== currentScale) {
-                currentScale = item.scale;
-                const scaleHeader = document.createElement('h3');
-                scaleHeader.textContent = currentScale;
-                container.appendChild(scaleHeader);
-            }
-
-            const qid = `q${index + 1}`;
+        likertQuestions.forEach((item) => {
+            // ▼▼▼ [수정됨] 카테고리 제목을 생성하는 부분을 삭제하여 쭉 이어지게 함 ▼▼▼
+            questionCounter++;
+            const qid = `q${questionCounter}`;
             const questionHTML = template
                 .replace(/{qid}/g, qid)
                 .replace('{is-reverse}', item.reverse)
-                .replace('{q-text}', `${index + 1}. ${item.q}`);
+                .replace('{q-text}', `${questionCounter}. ${item.q}`);
             container.innerHTML += questionHTML;
         });
     }
@@ -111,19 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateProgress(index);
         updateButtons(index);
+        window.scrollTo(0, 0); // 페이지 넘길 때 맨 위로 스크롤
     }
     
     // 진행도 업데이트 함수
     function updateProgress(index) {
-        const progressPercentage = (index / (TOTAL_PAGES - 1)) * 100;
+        const progressPercentage = (index / (TOTAL_PAGES - 2)) * 100;
         progress.style.width = `${progressPercentage}%`;
     }
 
     // 버튼 상태 업데이트 함수
     function updateButtons(index) {
         prevBtn.classList.toggle('hidden', index === 0);
-        nextBtn.classList.toggle('hidden', index === TOTAL_PAGES - 1);
-        submitBtn.classList.toggle('hidden', index !== TOTAL_PAGES - 1);
+        const isLastQuestionPage = index === TOTAL_PAGES - 2;
+        nextBtn.classList.toggle('hidden', isLastQuestionPage);
+        submitBtn.classList.toggle('hidden', !isLastQuestionPage);
 
         if (index === 0) {
             nextBtn.textContent = '동의하고 시작하기';
@@ -137,9 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 페이지 유효성 검사 함수
     function validatePage(index) {
         const currentPage = pages[index];
-        const inputs = currentPage.querySelectorAll('[required]');
+        const inputs = currentPage.querySelectorAll('[required]:not(.hidden *)');
         
         for (const input of inputs) {
+             if (input.closest('.hidden')) continue;
+
             if (input.type === 'radio' || input.type === 'checkbox') {
                 const name = input.name;
                 if (!surveyForm.querySelector(`input[name="${name}"]:checked`)) {
@@ -154,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 감정표현 스타일 2개 제한 유효성 검사
+        // 감정표현 스타일 1개 이상 선택 유효성 검사
         if (currentPage.id === 'page-3') {
              const emotionCheckboxes = document.querySelectorAll('input[name="emotion-style"]:checked');
              if (emotionCheckboxes.length === 0) {
@@ -162,10 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
              }
         }
-
         return true;
     }
-
 
     // "다음" 버튼 클릭 이벤트
     nextBtn.addEventListener('click', () => {
@@ -219,12 +216,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 likertResults[qid] = {
                     question: likertQuestions[index].q,
-                    scale: likertQuestions[index].scale,
+                    scale: likertQuestions[index].scale, // 카테고리 정보는 데이터에만 저장
                     value: originalValue,
                 };
                 
                 if(isReverse) {
-                    likertResults[qid].reversedValue = 5 - originalValue; // 역채점 (1->4, 2->3, 3->2, 4->1)
+                    // 4점 척도 역채점: (최대값 + 1) - 원점수 = (4 + 1) - 원점수
+                    likertResults[qid].reversedValue = 5 - originalValue; 
                 }
 
                 delete surveyData[qid]; // 원본 폼 데이터에서 q 항목 삭제
