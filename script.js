@@ -256,8 +256,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 추가 로직 (적응형 질문, 체크박스 제한 등) ---
 
     // 연구 동의 체크박스
-    document.getElementById('consent-check').addEventListener('change', (e) => {
-        nextBtn.disabled = !e.target.checked;
+    // 연구 동의 체크박스
+    document.getElementById('consent-check').addEventListener('change', () => {
+        // 첫 번째 페이지에 있을 때만 버튼 상태를 다시 업데이트합니다.
+        if (currentPageIndex === 0) {
+            updateButtons(currentPageIndex);
+        }
     });
 
     // 직장인 선택 시 직장 경력 질문 표시
