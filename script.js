@@ -206,6 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // 설문 유형 추가 (추격연구용)
+            surveyData.surveyType = "pre"; // 사후 설문에서는 "post"로 변경
+
             // 4점 척도 데이터 정리 (역채점 포함)
             const likertResults = {};
             const likertGroups = document.querySelectorAll('#likert-questions-container .question-group');
